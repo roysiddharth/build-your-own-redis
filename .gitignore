@@ -79,6 +79,7 @@ docker-compose.yml
 # Environment variable files
 .env
 .env.*
+Config/
 
 # Other ignored files
 *.bak
