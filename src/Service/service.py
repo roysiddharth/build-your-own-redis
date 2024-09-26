@@ -1,12 +1,14 @@
 import os
 import socket
 
-from Utility import parseUtil
+from Utility import handler, parseUtil
 
 PORT = int(os.environ.get("PORT"))
 
 def run():
-    server_socket = socket.create_server(("localhost", PORT))
+    server_socket = socket.create_server(("localhost", PORT))  # Use port 6379
+
+    print("Server is listening on port 6379...")
 
     while True:
         conn, addr = server_socket.accept()
@@ -14,29 +16,24 @@ def run():
 
         with conn:
             buffer = b""
-            
             while True:
                 data = conn.recv(1024)
                 if not data:
-                    break
+                    break  # Client disconnected
 
-                buffer += data
-
-                # command = parseUtil.parse_resp(buffer)
-                # if command:
-                #     print(f"Command received: {command}")
-                #     if command.upper() == "PING":
-                #         conn.sendall(b"+PONG\r\n")
-                #     else:
-                #         conn.sendall(b"-ERR unknown command\r\n")
-                
-                if b"\r\n" in buffer:
-                    command = buffer.decode().strip()
-                    print(f"Received command: {command}")
-
-                    if command.upper() == "PING":
-                        conn.sendall(b"+PONG\r\n")
+                for byte in data:
+                    if byte == 8:  # ASCII backspace character (\x08 or \b)
+                        buffer = buffer[:-1]  # Remove the last byte from the buffer
                     else:
-                        conn.sendall(b"-ERR unknown command\r\n")
+                        buffer += bytes([byte])
 
-                    buffer = b"" # Clear buffer for next input
+                # Check if the buffer contains a full command (ends with \r\n)
+                if buffer.endswith(b'\r\n'):
+                    # Parse the RESP-encoded data only when a full command is received
+                    command = parseUtil.parse_resp(buffer)
+                    print(f"Command ---> {command}")
+                    if command:
+                        handler.handle_command(command, conn)
+                    
+                    # Clear the buffer for the next command after processing
+                    buffer = b""
