@@ -3,10 +3,13 @@ import socket
 
 from Utility import handler, parseUtil
 from DatabaseManager import database
+from Scheduler.scheduler import start_expiry_thread, start_auto_save_thread
 
 PORT = int(os.environ.get("PORT"))
 
 def run():
+    start_expiry_thread()
+    start_auto_save_thread()
     database.load_data_from_mongodb()
     server_socket = socket.create_server(("localhost", PORT))  # Use port 6379
 
