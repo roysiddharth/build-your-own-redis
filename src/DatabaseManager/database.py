@@ -1,9 +1,15 @@
+import os
 from pymongo import MongoClient
 from globals import db_obj
 
-client = MongoClient('localhost', 27017)
-db = client['redis_storage']
-collection = db['kv_store']
+MONGO_HOST=os.environ.get("MONGO_HOST")
+MONGO_PORT=int(os.environ.get("MONGO_PORT"))
+MONGO_DB=os.environ.get("MONGO_DB")
+MONGO_COLLECTION=os.environ.get("MONGO_COLLECTION")
+
+client = MongoClient(MONGO_HOST, MONGO_PORT)
+db = client[MONGO_DB]
+collection = db[MONGO_COLLECTION]
 
 def save_data_to_mongodb():
     """
