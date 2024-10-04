@@ -2,10 +2,12 @@ import os
 import socket
 
 from Utility import handler, parseUtil
+from DatabaseManager import database
 
 PORT = int(os.environ.get("PORT"))
 
 def run():
+    database.load_data_from_mongodb()
     server_socket = socket.create_server(("localhost", PORT))  # Use port 6379
 
     print("Server is listening on port 6379...")

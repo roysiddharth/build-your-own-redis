@@ -1,0 +1,1 @@
+db_obj: dict = {} # To be used throughout the code base
